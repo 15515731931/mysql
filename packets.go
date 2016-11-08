@@ -700,10 +700,11 @@ func (rows *textRows) readRow(dest []driver.Value) error {
 	if data[0] == iEOF && len(data) == 5 {
 		// server_status [2 bytes]
 		rows.mc.status = readStatus(data[3:])
-		if err := rows.mc.discardResults(); err != nil {
+		err := rows.mc.discardResults()
+		rows.mc = nil
+		if err != nil {
 			return err
 		}
-		rows.mc = nil
 		return io.EOF
 	}
 	if data[0] == iERR {
@@ -1105,10 +1106,11 @@ func (rows *binaryRows) readRow(dest []driver.Value) error {
 		// EOF Packet
 		if data[0] == iEOF && len(data) == 5 {
 			rows.mc.status = readStatus(data[3:])
-			if err := rows.mc.discardResults(); err != nil {
+			err := rows.mc.discardResults()
+			rows.mc = nil
+			if err != nil {
 				return err
 			}
-			rows.mc = nil
 			return io.EOF
 		}
 		rows.mc = nil
